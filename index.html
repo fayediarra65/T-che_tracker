@@ -57,6 +57,18 @@
             gap: 16px;
         }
 
+        @media (max-width: 1024px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls > div {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
         .filters {
             display: flex;
             gap: 8px;
@@ -124,6 +136,13 @@
             padding: 16px;
             border: 1px solid #C9A58C;
             text-align: center;
+            line-height: 1.5;
+        }
+
+        .calendar-header small {
+            font-size: 12px;
+            display: block;
+            margin-top: 4px;
         }
 
         .slot-label {
@@ -197,6 +216,21 @@
             border-color: #C9A58C !important;
         }
 
+        .task-card.urgent {
+            background: #FEE2E2 !important;
+            border-color: #EF4444 !important;
+        }
+
+        .task-card.urgent.status-done {
+            background: #D1FAE5 !important;
+            border-color: #10B981 !important;
+        }
+
+        .task-card.urgent.status-inprogress {
+            background: #FEF3C7 !important;
+            border-color: #F59E0B !important;
+        }
+
         .task-header {
             display: flex;
             align-items: center;
@@ -215,6 +249,19 @@
             color: #8B5A45;
             font-size: 12px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .task-duration {
+            color: #8B5A45;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .task-actions {
@@ -411,7 +458,12 @@
                 <button class="btn" onclick="filterTasks('Habitude')">Habitude</button>
                 <button class="btn" onclick="filterTasks('Projet')">Projet</button>
             </div>
-            <button class="btn btn-add" onclick="openAddModal()">➕ Ajouter</button>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn" onclick="changeWeek(-1)">◀ Semaine précédente</button>
+                <button class="btn" onclick="changeWeek(0)">📅 Aujourd'hui</button>
+                <button class="btn" onclick="changeWeek(1)">Semaine suivante ▶</button>
+                <button class="btn btn-add" onclick="openAddModal()">➕ Ajouter</button>
+            </div>
         </div>
 
         <div class="calendar">
@@ -449,7 +501,12 @@
                     Terminé
                 </div>
             </div>
-           
+            <p class="legend-text">
+                ✨ <strong>Cliquez sur l'icône</strong> pour changer le statut • 
+                ✏️ <strong>Modifiez ou supprimez</strong> avec les icônes •
+                🕐 <strong>Durée</strong> affichée pour chaque tâche •
+                💾 <strong>Toutes vos données sont sauvegardées automatiquement</strong>
+            </p>
         </div>
     </div>
 
@@ -494,12 +551,30 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Heure</label>
+                        <label class="form-label">Heure de début</label>
                         <input type="time" id="taskTime" class="form-input" value="08:00">
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Durée</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="number" id="taskDuration" class="form-input" min="5" max="480" value="60" style="flex: 1;">
+                            <select id="taskDurationUnit" class="form-select" style="width: 100px;">
+                                <option value="minutes">minutes</option>
+                                <option value="hours">heures</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #8B5A45; font-weight: 600; margin-top: 24px;">
+                            <input type="checkbox" id="taskUrgent" style="width: 18px; height: 18px; cursor: pointer;">
+                            🚨 Urgent
+                        </label>
+                    </div>
+                </div>
                 <div class="modal-actions">
-                    <button type="submit" class="btn btn-add">✓ Ajouter</button>
+                    <button type="submit" class="btn btn-add">✓ Enregistrer</button>
                     <button type="button" class="btn" onclick="closeModal()">Annuler</button>
                 </div>
             </form>
@@ -510,6 +585,7 @@
         let tasks = [];
         let currentFilter = 'Tous';
         let editingTaskId = null;
+        let currentWeekStart = null;
 
         const slotLabels = {
             matin: '🌅 Matin',
@@ -517,8 +593,38 @@
             soir: '🌙 Soir'
         };
 
+        const dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+        const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+
+        // Obtenir le lundi de la semaine actuelle
+        function getMonday(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        // Formater la date pour l'affichage
+        function formatDate(date) {
+            const day = date.getDate();
+            const month = monthNames[date.getMonth()];
+            return `${day} ${month}`;
+        }
+
+        // Obtenir les dates de la semaine
+        function getWeekDates(startDate) {
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                dates.push(date);
+            }
+            return dates;
+        }
+
         // Initialisation
         function init() {
+            currentWeekStart = getMonday(new Date());
             loadTasks();
             renderCalendar();
             document.getElementById('taskForm').addEventListener('submit', handleSubmit);
@@ -531,16 +637,126 @@
                 tasks = JSON.parse(saved);
             } else {
                 tasks = [
-                    { id: 1, name: 'Mémorisation Coran', day: 0, slot: 'matin', status: 'done', category: 'Religion', time: '07:00' },
-                    { id: 2, name: 'Révision sourates', day: 0, slot: 'matin', status: 'pending', category: 'Religion', time: '08:00' },
-                    { id: 3, name: 'E-commerce', day: 0, slot: 'journee', status: 'inprogress', category: 'Travail', time: '10:00' },
-                    { id: 4, name: 'Duolingo', day: 0, slot: 'soir', status: 'done', category: 'Habitude', time: '19:00' },
-                    { id: 5, name: 'Tafsir', day: 1, slot: 'matin', status: 'pending', category: 'Religion', time: '07:30' },
-                    { id: 6, name: 'Code back-end', day: 1, slot: 'journee', status: 'inprogress', category: 'Travail', time: '14:00' },
-                    { id: 7, name: 'Douche', day: 1, slot: 'soir', status: 'done', category: 'Habitude', time: '20:00' },
-                    { id: 8, name: 'Al-Akhdariyya', day: 2, slot: 'matin', status: 'pending', category: 'Religion', time: '06:30' },
-                    { id: 9, name: 'Réunion équipe', day: 2, slot: 'journee', status: 'pending', category: 'Travail', time: '15:00' },
-                    { id: 10, name: 'Ranger chambre', day: 2, slot: 'soir', status: 'pending', category: 'Habitude', time: '18:30' }
+                    { 
+                        id: 1, 
+                        name: 'Mémorisation Coran', 
+                        day: 0, 
+                        slot: 'matin', 
+                        status: 'done', 
+                        category: 'Religion', 
+                        time: '07:00', 
+                        duration: 60,
+                        durationUnit: 'minutes',
+                        urgent: false 
+                    },
+                    { 
+                        id: 2, 
+                        name: 'Révision sourates', 
+                        day: 0, 
+                        slot: 'matin', 
+                        status: 'pending', 
+                        category: 'Religion', 
+                        time: '08:00', 
+                        duration: 30,
+                        durationUnit: 'minutes',
+                        urgent: false 
+                    },
+                    { 
+                        id: 3, 
+                        name: 'E-commerce', 
+                        day: 0, 
+                        slot: 'journee', 
+                        status: 'inprogress', 
+                        category: 'Travail', 
+                        time: '10:00', 
+                        duration: 2,
+                        durationUnit: 'hours',
+                        urgent: true 
+                    },
+                    { 
+                        id: 4, 
+                        name: 'Duolingo', 
+                        day: 0, 
+                        slot: 'soir', 
+                        status: 'done', 
+                        category: 'Habitude', 
+                        time: '19:00', 
+                        duration: 20,
+                        durationUnit: 'minutes',
+                        urgent: false 
+                    },
+                    { 
+                        id: 5, 
+                        name: 'Tafsir', 
+                        day: 1, 
+                        slot: 'matin', 
+                        status: 'pending', 
+                        category: 'Religion', 
+                        time: '07:30', 
+                        duration: 45,
+                        durationUnit: 'minutes',
+                        urgent: false 
+                    },
+                    { 
+                        id: 6, 
+                        name: 'Code back-end', 
+                        day: 1, 
+                        slot: 'journee', 
+                        status: 'inprogress', 
+                        category: 'Travail', 
+                        time: '14:00', 
+                        duration: 3,
+                        durationUnit: 'hours',
+                        urgent: false 
+                    },
+                    { 
+                        id: 7, 
+                        name: 'Douche', 
+                        day: 1, 
+                        slot: 'soir', 
+                        status: 'done', 
+                        category: 'Habitude', 
+                        time: '20:00', 
+                        duration: 15,
+                        durationUnit: 'minutes',
+                        urgent: false 
+                    },
+                    { 
+                        id: 8, 
+                        name: 'Al-Akhdariyya', 
+                        day: 2, 
+                        slot: 'matin', 
+                        status: 'pending', 
+                        category: 'Religion', 
+                        time: '06:30', 
+                        duration: 40,
+                        durationUnit: 'minutes',
+                        urgent: false 
+                    },
+                    { 
+                        id: 9, 
+                        name: 'Réunion équipe', 
+                        day: 2, 
+                        slot: 'journee', 
+                        status: 'pending', 
+                        category: 'Travail', 
+                        time: '15:00', 
+                        duration: 1,
+                        durationUnit: 'hours',
+                        urgent: true 
+                    },
+                    { 
+                        id: 10, 
+                        name: 'Ranger chambre', 
+                        day: 2, 
+                        slot: 'soir', 
+                        status: 'pending', 
+                        category: 'Habitude', 
+                        time: '18:30', 
+                        duration: 30,
+                        durationUnit: 'minutes',
+                        urgent: false 
+                    }
                 ];
                 saveTasks();
             }
@@ -559,6 +775,15 @@
             renderCalendar();
         }
 
+        function changeWeek(direction) {
+            if (direction === 0) {
+                currentWeekStart = getMonday(new Date());
+            } else {
+                currentWeekStart.setDate(currentWeekStart.getDate() + (direction * 7));
+            }
+            renderCalendar();
+        }
+
         function getFilteredTasks() {
             if (currentFilter === 'Tous') return tasks;
             return tasks.filter(task => task.category === currentFilter);
@@ -567,7 +792,19 @@
         function renderCalendar() {
             const tbody = document.getElementById('calendarBody');
             const slots = ['matin', 'journee', 'soir'];
+            const weekDates = getWeekDates(currentWeekStart);
             tbody.innerHTML = '';
+
+            // Créer l'en-tête avec les dates
+            const theadRow = document.querySelector('.calendar-header tr');
+            if (theadRow) {
+                theadRow.innerHTML = '<th style="width: 120px;">Créneaux</th>';
+                weekDates.forEach((date, index) => {
+                    const th = document.createElement('th');
+                    th.innerHTML = `${dayNames[index]}<br><small style="font-weight: normal; opacity: 0.8;">${formatDate(date)}</small>`;
+                    theadRow.appendChild(th);
+                });
+            }
 
             slots.forEach(slot => {
                 const row = document.createElement('tr');
@@ -596,9 +833,18 @@
             });
         }
 
+        function formatDuration(duration, unit) {
+            if (unit === 'hours') {
+                return duration === 1 ? '1 heure' : `${duration} heures`;
+            } else {
+                return `${duration} minutes`;
+            }
+        }
+
         function createTaskCard(task) {
             const card = document.createElement('div');
-            card.className = `task-card ${task.category.toLowerCase()} status-${task.status}`;
+            const urgentClass = task.urgent ? 'urgent' : '';
+            card.className = `task-card ${task.category.toLowerCase()} status-${task.status} ${urgentClass}`;
             
             const statusIcons = {
                 pending: '○',
@@ -606,18 +852,21 @@
                 done: '●'
             };
 
+            const urgentBadge = task.urgent ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-left: 4px;">URGENT</span>' : '';
+
             card.innerHTML = `
                 <div class="task-header">
                     <button class="status-btn status-${task.status}" onclick="toggleStatus(${task.id})">
                         ${statusIcons[task.status]}
                     </button>
-                    <div class="task-name">${task.name}</div>
+                    <div class="task-name">${task.name}${urgentBadge}</div>
                     <div class="task-actions">
                         <button class="icon-btn" onclick="editTask(${task.id})" title="Modifier">✏️</button>
                         <button class="icon-btn" onclick="deleteTask(${task.id})" title="Supprimer">🗑️</button>
                     </div>
                 </div>
                 <div class="task-time">🕐 ${task.time}</div>
+                <div class="task-duration">⏱️ ${formatDuration(task.duration, task.durationUnit || 'minutes')}</div>
             `;
 
             return card;
@@ -646,6 +895,8 @@
             editingTaskId = null;
             document.getElementById('modalTitle').textContent = '➕ Ajouter une tâche';
             document.getElementById('taskForm').reset();
+            document.getElementById('taskDuration').value = '60';
+            document.getElementById('taskDurationUnit').value = 'minutes';
             document.getElementById('taskModal').classList.add('active');
         }
 
@@ -659,6 +910,9 @@
                 document.getElementById('taskSlot').value = task.slot;
                 document.getElementById('taskCategory').value = task.category;
                 document.getElementById('taskTime').value = task.time;
+                document.getElementById('taskDuration').value = task.duration;
+                document.getElementById('taskDurationUnit').value = task.durationUnit || 'minutes';
+                document.getElementById('taskUrgent').checked = task.urgent || false;
                 document.getElementById('taskModal').classList.add('active');
             }
         }
@@ -677,6 +931,9 @@
                 slot: document.getElementById('taskSlot').value,
                 category: document.getElementById('taskCategory').value,
                 time: document.getElementById('taskTime').value,
+                duration: parseInt(document.getElementById('taskDuration').value),
+                durationUnit: document.getElementById('taskDurationUnit').value,
+                urgent: document.getElementById('taskUrgent').checked,
                 status: 'pending'
             };
 
