@@ -71,9 +71,9 @@
 
         .filters {
             display: flex;
+            flex-wrap: wrap;
             gap: 8px;
             align-items: center;
-            flex-wrap: wrap;
         }
 
         .filter-label {
@@ -112,6 +112,48 @@
             border: none;
             padding: 12px 24px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .btn-manage-categories {
+            background: linear-gradient(135deg, #6B4532 0%, #8B5A45 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .categories-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .category-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .category-tag:hover {
+            opacity: 0.9;
+        }
+
+        .category-badge {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
         }
 
         .calendar {
@@ -168,7 +210,7 @@
 
         .task-card {
             background: white;
-            border: 2px solid #C9A58C;
+            border: 2px solid;
             border-radius: 8px;
             padding: 12px;
             margin-bottom: 8px;
@@ -181,39 +223,16 @@
             transform: translateY(-2px);
         }
 
-        .task-card.religion {
-            background: white;
-            border-color: #C9A58C;
-        }
-
-        .task-card.travail {
-            background: white;
-            border-color: #C9A58C;
-        }
-
-        .task-card.habitude {
-            background: white;
-            border-color: #C9A58C;
-        }
-
-        .task-card.projet {
-            background: white;
-            border-color: #C9A58C;
-        }
-
         .task-card.status-done {
-            background: #D1FAE5 !important;
-            border-color: #10B981 !important;
+            opacity: 0.8;
         }
 
         .task-card.status-inprogress {
-            background: #FEF3C7 !important;
-            border-color: #F59E0B !important;
+            border-width: 3px;
         }
 
         .task-card.status-pending {
-            background: white !important;
-            border-color: #C9A58C !important;
+            border-style: dashed;
         }
 
         .task-card.urgent {
@@ -378,6 +397,139 @@
             background: #B8967E;
         }
 
+        /* Modal de gestion des catégories */
+        .categories-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            padding: 16px;
+        }
+
+        .categories-modal.active {
+            display: flex;
+        }
+
+        .categories-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            border-top: 4px solid #6B4532;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .categories-title {
+            color: #6B4532;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .categories-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 12px;
+            background: #FFF8F3;
+            border-radius: 8px;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid;
+            min-width: 200px;
+        }
+
+        .category-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .category-name {
+            flex: 1;
+            font-weight: 500;
+            color: #6B4532;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .color-picker {
+            position: absolute;
+            display: none;
+            flex-wrap: wrap;
+            gap: 4px;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .color-picker.active {
+            display: flex;
+        }
+
+        .color-option {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: #6B4532;
+        }
+
+        .new-category-form {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .new-category-form input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #C9A58C;
+            border-radius: 8px;
+            background: #FFF8F3;
+            font-size: 14px;
+            color: #6B4532;
+        }
+
+        .new-category-form input:focus {
+            outline: none;
+            border-color: #B8967E;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -478,6 +630,19 @@
             .form-row {
                 grid-template-columns: 1fr;
             }
+
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .categories-container {
+                flex-wrap: wrap;
+            }
+
+            .new-category-form {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -489,19 +654,24 @@
         </div>
 
         <div class="controls">
-            <div class="filters">
-                <span class="filter-label">🔍 Filtrer:</span>
-                <button class="btn active" onclick="filterTasks('Tous')">Tous</button>
-                <button class="btn" onclick="filterTasks('Religion')">Religion</button>
-                <button class="btn" onclick="filterTasks('Travail')">Travail</button>
-                <button class="btn" onclick="filterTasks('Habitude')">Habitude</button>
-                <button class="btn" onclick="filterTasks('Projet')">Projet</button>
-            </div>
-            <div style="display: flex; gap: 8px; align-items: center;">
-                <button class="btn" onclick="changeWeek(-1)">◀ Semaine précédente</button>
-                <button class="btn" onclick="changeWeek(0)">📅 Aujourd'hui</button>
-                <button class="btn" onclick="changeWeek(1)">Semaine suivante ▶</button>
-                <button class="btn btn-add" onclick="openAddModal()">➕ Ajouter</button>
+            <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <div class="filters">
+                    <span class="filter-label">🔍 Filtrer:</span>
+                    <div class="categories-container" id="categoriesContainer">
+                        <!-- Les catégories seront générées ici -->
+                    </div>
+                    <button class="btn-manage-categories" onclick="openCategoriesModal()">
+                        ⚙️ Gérer
+                    </button>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+                    <div>
+                        <button class="btn" onclick="changeWeek(-1)">◀ Semaine précédente</button>
+                        <button class="btn" onclick="changeWeek(0)">📅 Aujourd'hui</button>
+                        <button class="btn" onclick="changeWeek(1)">Semaine suivante ▶</button>
+                    </div>
+                    <button class="btn btn-add" onclick="openAddModal()">➕ Ajouter</button>
+                </div>
             </div>
         </div>
 
@@ -525,6 +695,23 @@
         </div>
     </div>
 
+    <!-- Modal de gestion des catégories -->
+    <div id="categoriesModal" class="categories-modal">
+        <div class="categories-content">
+            <h3 class="categories-title">
+                🏷️ Gérer les catégories
+                <button class="btn" onclick="closeCategoriesModal()" style="font-size: 14px; padding: 6px 12px;">✕</button>
+            </h3>
+            <div class="categories-list" id="categoriesList">
+                <!-- Les catégories seront affichées ici -->
+            </div>
+            <div class="new-category-form">
+                <input type="text" id="newCategoryName" placeholder="Nouvelle catégorie (ex: Sport, Lecture, etc.)">
+                <button class="btn btn-add" onclick="addNewCategory()">➕ Ajouter</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de confirmation pour suppression -->
     <div id="confirmModal" class="confirm-modal">
         <div class="confirm-content">
@@ -537,7 +724,7 @@
         </div>
     </div>
 
-    <!-- Modal d'ajout/modification -->
+    <!-- Modal d'ajout/modification de tâche -->
     <div id="taskModal" class="modal">
         <div class="modal-content">
             <h3 class="modal-title" id="modalTitle">➕ Ajouter une tâche</h3>
@@ -572,10 +759,7 @@
                     <div class="form-group">
                         <label class="form-label">Catégorie</label>
                         <select id="taskCategory" class="form-select">
-                            <option value="Religion">Religion</option>
-                            <option value="Travail">Travail</option>
-                            <option value="Habitude">Habitude</option>
-                            <option value="Projet">Projet</option>
+                            <!-- Les catégories seront ajoutées dynamiquement -->
                         </select>
                     </div>
                     <div class="form-group">
@@ -611,10 +795,19 @@
 
     <script>
         let tasks = [];
+        let categories = [];
         let currentFilter = 'Tous';
         let editingTaskId = null;
         let currentWeekStart = null;
-        let taskToDelete = null; // Stocke l'ID de la tâche à supprimer
+        let taskToDelete = null;
+        let editingCategoryId = null;
+
+        // Couleurs disponibles pour les catégories
+        const availableColors = [
+            '#C9A58C', '#E8C4A0', '#6B4532', '#8B5A45', '#D9B38C',
+            '#EF4444', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899',
+            '#F59E0B', '#84CC16', '#06B6D4', '#6366F1', '#F97316'
+        ];
 
         const slotLabels = {
             matin: '🌅 Matin',
@@ -625,44 +818,40 @@
         const dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
         const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
 
-        // Obtenir le lundi de la semaine actuelle
-        function getMonday(date) {
-            const d = new Date(date);
-            const day = d.getDay();
-            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(d.setDate(diff));
-        }
-
-        // Formater la date pour l'affichage
-        function formatDate(date) {
-            const day = date.getDate();
-            const month = monthNames[date.getMonth()];
-            return `${day} ${month}`;
-        }
-
-        // Obtenir les dates de la semaine
-        function getWeekDates(startDate) {
-            const dates = [];
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(startDate);
-                date.setDate(startDate.getDate() + i);
-                dates.push(date);
-            }
-            return dates;
-        }
-
         // Initialisation
         function init() {
             currentWeekStart = getMonday(new Date());
+            loadCategories();
             loadTasks();
+            renderCategories();
             renderCalendar();
-            document.getElementById('taskForm').addEventListener('submit', handleSubmit);
             
-            // Configurer le bouton de confirmation
+            document.getElementById('taskForm').addEventListener('submit', handleSubmit);
             document.getElementById('confirmDelete').addEventListener('click', performDelete);
         }
 
-        // Chargement des données
+        // Charger les catégories
+        function loadCategories() {
+            const saved = localStorage.getItem('hebdo-categories');
+            if (saved) {
+                categories = JSON.parse(saved);
+            } else {
+                // Catégories par défaut
+                categories = [
+                    { id: 1, name: 'Religion', color: '#C9A58C' },
+                    { id: 2, name: 'Travail', color: '#6B4532' },
+                    { id: 3, name: 'Habitude', color: '#8B5A45' },
+                    { id: 4, name: 'Projet', color: '#D9B38C' }
+                ];
+                saveCategories();
+            }
+        }
+
+        function saveCategories() {
+            localStorage.setItem('hebdo-categories', JSON.stringify(categories));
+        }
+
+        // Charger les tâches
         function loadTasks() {
             const saved = localStorage.getItem('hebdo-tasks');
             if (saved) {
@@ -675,7 +864,7 @@
                         day: 0, 
                         slot: 'matin', 
                         status: 'done', 
-                        category: 'Religion', 
+                        categoryId: 1, 
                         time: '07:00', 
                         duration: 60,
                         durationUnit: 'minutes',
@@ -687,7 +876,7 @@
                         day: 0, 
                         slot: 'matin', 
                         status: 'pending', 
-                        category: 'Religion', 
+                        categoryId: 1, 
                         time: '08:00', 
                         duration: 30,
                         durationUnit: 'minutes',
@@ -699,7 +888,7 @@
                         day: 0, 
                         slot: 'journee', 
                         status: 'inprogress', 
-                        category: 'Travail', 
+                        categoryId: 2, 
                         time: '10:00', 
                         duration: 2,
                         durationUnit: 'hours',
@@ -711,81 +900,9 @@
                         day: 0, 
                         slot: 'soir', 
                         status: 'done', 
-                        category: 'Habitude', 
+                        categoryId: 3, 
                         time: '19:00', 
                         duration: 20,
-                        durationUnit: 'minutes',
-                        urgent: false 
-                    },
-                    { 
-                        id: 5, 
-                        name: 'Tafsir', 
-                        day: 1, 
-                        slot: 'matin', 
-                        status: 'pending', 
-                        category: 'Religion', 
-                        time: '07:30', 
-                        duration: 45,
-                        durationUnit: 'minutes',
-                        urgent: false 
-                    },
-                    { 
-                        id: 6, 
-                        name: 'Code back-end', 
-                        day: 1, 
-                        slot: 'journee', 
-                        status: 'inprogress', 
-                        category: 'Travail', 
-                        time: '14:00', 
-                        duration: 3,
-                        durationUnit: 'hours',
-                        urgent: false 
-                    },
-                    { 
-                        id: 7, 
-                        name: 'Douche', 
-                        day: 1, 
-                        slot: 'soir', 
-                        status: 'done', 
-                        category: 'Habitude', 
-                        time: '20:00', 
-                        duration: 15,
-                        durationUnit: 'minutes',
-                        urgent: false 
-                    },
-                    { 
-                        id: 8, 
-                        name: 'Al-Akhdariyya', 
-                        day: 2, 
-                        slot: 'matin', 
-                        status: 'pending', 
-                        category: 'Religion', 
-                        time: '06:30', 
-                        duration: 40,
-                        durationUnit: 'minutes',
-                        urgent: false 
-                    },
-                    { 
-                        id: 9, 
-                        name: 'Réunion équipe', 
-                        day: 2, 
-                        slot: 'journee', 
-                        status: 'pending', 
-                        category: 'Travail', 
-                        time: '15:00', 
-                        duration: 1,
-                        durationUnit: 'hours',
-                        urgent: true 
-                    },
-                    { 
-                        id: 10, 
-                        name: 'Ranger chambre', 
-                        day: 2, 
-                        slot: 'soir', 
-                        status: 'pending', 
-                        category: 'Habitude', 
-                        time: '18:30', 
-                        duration: 30,
                         durationUnit: 'minutes',
                         urgent: false 
                     }
@@ -798,12 +915,229 @@
             localStorage.setItem('hebdo-tasks', JSON.stringify(tasks));
         }
 
-        function filterTasks(category) {
-            currentFilter = category;
-            document.querySelectorAll('.filters .btn').forEach(btn => {
-                btn.classList.remove('active');
+        // Afficher les catégories dans les filtres
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+            
+            // Bouton "Tous"
+            const allBtn = document.createElement('button');
+            allBtn.className = `btn ${currentFilter === 'Tous' ? 'active' : ''}`;
+            allBtn.textContent = 'Tous';
+            allBtn.onclick = () => filterTasks('Tous');
+            container.appendChild(allBtn);
+            
+            // Boutons pour chaque catégorie
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = `btn ${currentFilter === category.id ? 'active' : ''}`;
+                btn.style.borderLeftColor = category.color;
+                btn.style.borderLeftWidth = '4px';
+                btn.style.borderLeftStyle = 'solid';
+                btn.innerHTML = `
+                    <span style="width: 10px; height: 10px; background: ${category.color}; border-radius: 50%; display: inline-block; margin-right: 6px;"></span>
+                    ${category.name}
+                `;
+                btn.onclick = () => filterTasks(category.id);
+                container.appendChild(btn);
             });
-            event.target.classList.add('active');
+            
+            // Mettre à jour le select dans le formulaire
+            updateCategorySelect();
+        }
+
+        function updateCategorySelect() {
+            const select = document.getElementById('taskCategory');
+            select.innerHTML = '';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                select.appendChild(option);
+            });
+        }
+
+        function openCategoriesModal() {
+            renderCategoriesList();
+            document.getElementById('categoriesModal').classList.add('active');
+        }
+
+        function closeCategoriesModal() {
+            document.getElementById('categoriesModal').classList.remove('active');
+        }
+
+        function renderCategoriesList() {
+            const list = document.getElementById('categoriesList');
+            list.innerHTML = '';
+            
+            categories.forEach(category => {
+                const item = document.createElement('div');
+                item.className = 'category-item';
+                item.style.borderColor = category.color;
+                
+                item.innerHTML = `
+                    <div class="category-color" style="background: ${category.color};" 
+                         onclick="openColorPicker(${category.id}, this)"></div>
+                    <input type="text" class="category-name" value="${category.name}" 
+                           onchange="updateCategoryName(${category.id}, this.value)" 
+                           style="border: none; background: transparent; font-size: 14px; color: #6B4532; width: 100%;">
+                    <div class="category-actions">
+                        <button class="icon-btn" onclick="deleteCategory(${category.id})" title="Supprimer">🗑️</button>
+                    </div>
+                `;
+                
+                list.appendChild(item);
+            });
+        }
+
+        function openColorPicker(categoryId, element) {
+            // Fermer tout autre color picker
+            closeAllColorPickers();
+            
+            // Créer le color picker
+            const picker = document.createElement('div');
+            picker.className = 'color-picker active';
+            picker.style.position = 'absolute';
+            picker.style.left = `${element.offsetLeft}px`;
+            picker.style.top = `${element.offsetTop + element.offsetHeight + 5}px`;
+            
+            availableColors.forEach(color => {
+                const colorOption = document.createElement('div');
+                colorOption.className = 'color-option';
+                colorOption.style.background = color;
+                
+                const category = categories.find(c => c.id === categoryId);
+                if (category && category.color === color) {
+                    colorOption.classList.add('selected');
+                }
+                
+                colorOption.onclick = () => {
+                    updateCategoryColor(categoryId, color);
+                    picker.remove();
+                };
+                
+                picker.appendChild(colorOption);
+            });
+            
+            element.parentElement.appendChild(picker);
+            
+            // Fermer le picker en cliquant ailleurs
+            setTimeout(() => {
+                document.addEventListener('click', function closePicker(e) {
+                    if (!picker.contains(e.target) && e.target !== element) {
+                        picker.remove();
+                        document.removeEventListener('click', closePicker);
+                    }
+                });
+            }, 0);
+        }
+
+        function closeAllColorPickers() {
+            document.querySelectorAll('.color-picker').forEach(picker => picker.remove());
+        }
+
+        function updateCategoryName(categoryId, newName) {
+            const category = categories.find(c => c.id === categoryId);
+            if (category && newName.trim()) {
+                category.name = newName.trim();
+                saveCategories();
+                renderCategories();
+                renderCategoriesList();
+            }
+        }
+
+        function updateCategoryColor(categoryId, newColor) {
+            const category = categories.find(c => c.id === categoryId);
+            if (category) {
+                category.color = newColor;
+                saveCategories();
+                renderCategories();
+                renderCategoriesList();
+                renderCalendar();
+            }
+        }
+
+        function addNewCategory() {
+            const input = document.getElementById('newCategoryName');
+            const name = input.value.trim();
+            
+            if (name) {
+                // Vérifier si la catégorie existe déjà
+                if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+                    alert('Cette catégorie existe déjà !');
+                    return;
+                }
+                
+                const newCategory = {
+                    id: Date.now(),
+                    name: name,
+                    color: availableColors[Math.floor(Math.random() * availableColors.length)]
+                };
+                
+                categories.push(newCategory);
+                saveCategories();
+                renderCategories();
+                renderCategoriesList();
+                input.value = '';
+            }
+        }
+
+        function deleteCategory(categoryId) {
+            // Vérifier si des tâches utilisent cette catégorie
+            const tasksUsingCategory = tasks.filter(t => t.categoryId === categoryId);
+            
+            if (tasksUsingCategory.length > 0) {
+                if (!confirm(`Cette catégorie est utilisée par ${tasksUsingCategory.length} tâche(s). Voulez-vous vraiment la supprimer ? Les tâches seront affectées à la catégorie par défaut.`)) {
+                    return;
+                }
+                
+                // Réassigner les tâches à la première catégorie disponible
+                const defaultCategory = categories.find(c => c.id !== categoryId);
+                if (defaultCategory) {
+                    tasks.forEach(task => {
+                        if (task.categoryId === categoryId) {
+                            task.categoryId = defaultCategory.id;
+                        }
+                    });
+                    saveTasks();
+                }
+            }
+            
+            categories = categories.filter(c => c.id !== categoryId);
+            saveCategories();
+            renderCategories();
+            renderCategoriesList();
+            renderCalendar();
+        }
+
+        // Fonctions utilitaires pour les dates
+        function getMonday(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        function formatDate(date) {
+            const day = date.getDate();
+            const month = monthNames[date.getMonth()];
+            return `${day} ${month}`;
+        }
+
+        function getWeekDates(startDate) {
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                dates.push(date);
+            }
+            return dates;
+        }
+
+        function filterTasks(categoryFilter) {
+            currentFilter = categoryFilter;
+            renderCategories();
             renderCalendar();
         }
 
@@ -818,7 +1152,7 @@
 
         function getFilteredTasks() {
             if (currentFilter === 'Tous') return tasks;
-            return tasks.filter(task => task.category === currentFilter);
+            return tasks.filter(task => task.categoryId === currentFilter);
         }
 
         function renderCalendar() {
@@ -873,10 +1207,17 @@
             }
         }
 
+        function getCategoryById(categoryId) {
+            return categories.find(c => c.id === categoryId) || categories[0];
+        }
+
         function createTaskCard(task) {
+            const category = getCategoryById(task.categoryId);
             const card = document.createElement('div');
             const urgentClass = task.urgent ? 'urgent' : '';
-            card.className = `task-card ${task.category.toLowerCase()} status-${task.status} ${urgentClass}`;
+            card.className = `task-card status-${task.status} ${urgentClass}`;
+            card.style.borderColor = category.color;
+            card.style.background = `${category.color}15`;
             
             const statusIcons = {
                 pending: '○',
@@ -897,7 +1238,7 @@
                         <button class="icon-btn" onclick="showDeleteConfirm(${task.id})" title="Supprimer">🗑️</button>
                     </div>
                 </div>
-                <div class="task-time">🕐 ${task.time}</div>
+                <div class="task-time">🕐 ${task.time} • <span style="background: ${category.color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${category.name}</span></div>
                 <div class="task-duration">⏱️ ${formatDuration(task.duration, task.durationUnit || 'minutes')}</div>
             `;
 
@@ -932,10 +1273,8 @@
 
         function performDelete() {
             if (taskToDelete !== null) {
-                // Trouver l'index de la tâche à supprimer
                 const taskIndex = tasks.findIndex(t => t.id === taskToDelete);
                 if (taskIndex !== -1) {
-                    // Supprimer la tâche du tableau
                     tasks.splice(taskIndex, 1);
                     saveTasks();
                     renderCalendar();
@@ -950,6 +1289,7 @@
             document.getElementById('taskForm').reset();
             document.getElementById('taskDuration').value = '60';
             document.getElementById('taskDurationUnit').value = 'minutes';
+            updateCategorySelect();
             document.getElementById('taskModal').classList.add('active');
         }
 
@@ -961,7 +1301,7 @@
                 document.getElementById('taskName').value = task.name;
                 document.getElementById('taskDay').value = task.day;
                 document.getElementById('taskSlot').value = task.slot;
-                document.getElementById('taskCategory').value = task.category;
+                document.getElementById('taskCategory').value = task.categoryId;
                 document.getElementById('taskTime').value = task.time;
                 document.getElementById('taskDuration').value = task.duration;
                 document.getElementById('taskDurationUnit').value = task.durationUnit || 'minutes';
@@ -982,7 +1322,7 @@
                 name: document.getElementById('taskName').value,
                 day: parseInt(document.getElementById('taskDay').value),
                 slot: document.getElementById('taskSlot').value,
-                category: document.getElementById('taskCategory').value,
+                categoryId: parseInt(document.getElementById('taskCategory').value),
                 time: document.getElementById('taskTime').value,
                 duration: parseInt(document.getElementById('taskDuration').value),
                 durationUnit: document.getElementById('taskDurationUnit').value,
@@ -1004,6 +1344,12 @@
         }
 
         // Fermer les modals en cliquant en dehors
+        document.getElementById('categoriesModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCategoriesModal();
+            }
+        });
+
         document.getElementById('confirmModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeConfirmModal();
