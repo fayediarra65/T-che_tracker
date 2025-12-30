@@ -156,6 +156,113 @@
             display: inline-block;
         }
 
+        /* Vue synthèse */
+        .synthesis-view {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(139, 90, 69, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .synthesis-view.active {
+            display: block;
+        }
+
+        .synthesis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #C9A58C;
+        }
+
+        .synthesis-title {
+            color: #6B4532;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .synthesis-category-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .synthesis-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #8B5A45;
+        }
+
+        .synthesis-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .synthesis-table th {
+            background: #FFF8F3;
+            color: #6B4532;
+            font-weight: bold;
+            padding: 12px;
+            border: 1px solid #C9A58C;
+            text-align: center;
+        }
+
+        .synthesis-table td {
+            padding: 12px;
+            border: 1px solid #C9A58C;
+            vertical-align: top;
+            min-height: 80px;
+        }
+
+        .synthesis-slot {
+            background: #FFF8F3;
+            color: #6B4532;
+            font-weight: 600;
+            width: 100px;
+        }
+
+        .synthesis-task-item {
+            background: white;
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .synthesis-task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .synthesis-task-name {
+            font-weight: 600;
+            color: #6B4532;
+        }
+
+        .synthesis-task-time {
+            color: #8B5A45;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .synthesis-task-duration {
+            color: #8B5A45;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
         .calendar {
             background: white;
             border-radius: 12px;
@@ -581,7 +688,7 @@
             width: 100%;
             padding: 10px 12px;
             border: 2px solid #C9A58C;
-            border-radius: 8px;
+            border-radius: 8box;
             background: #FFF8F3;
             font-size: 14px;
             color: #6B4532;
@@ -618,7 +725,7 @@
                 padding: 12px;
             }
 
-            .calendar {
+            .calendar, .synthesis-table {
                 overflow-x: auto;
             }
 
@@ -675,6 +782,35 @@
             </div>
         </div>
 
+        <!-- Vue synthèse des catégories -->
+        <div class="synthesis-view" id="synthesisView">
+            <div class="synthesis-header">
+                <div class="synthesis-title">
+                    <div class="synthesis-category-color" id="synthesisCategoryColor"></div>
+                    <span id="synthesisCategoryName">Synthèse</span>
+                </div>
+                <button class="synthesis-close" onclick="closeSynthesisView()">✕</button>
+            </div>
+            <table class="synthesis-table">
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">Créneaux</th>
+                        <th>Lundi</th>
+                        <th>Mardi</th>
+                        <th>Mercredi</th>
+                        <th>Jeudi</th>
+                        <th>Vendredi</th>
+                        <th>Samedi</th>
+                        <th>Dimanche</th>
+                    </tr>
+                </thead>
+                <tbody id="synthesisBody">
+                    <!-- Le contenu sera généré ici -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Calendrier hebdomadaire -->
         <div class="calendar">
             <table class="calendar-table">
                 <thead class="calendar-header">
@@ -801,6 +937,7 @@
         let currentWeekStart = null;
         let taskToDelete = null;
         let editingCategoryId = null;
+        let currentSynthesisCategory = null;
 
         // Couleurs disponibles pour les catégories
         const availableColors = [
@@ -884,6 +1021,30 @@
                     },
                     { 
                         id: 3, 
+                        name: 'Prières', 
+                        day: 0, 
+                        slot: 'soir', 
+                        status: 'pending', 
+                        categoryId: 1, 
+                        time: '19:00', 
+                        duration: 20,
+                        durationUnit: 'minutes',
+                        urgent: false 
+                    },
+                    { 
+                        id: 4, 
+                        name: 'Lecture Coran', 
+                        day: 1, 
+                        slot: 'matin', 
+                        status: 'inprogress', 
+                        categoryId: 1, 
+                        time: '06:30', 
+                        duration: 45,
+                        durationUnit: 'minutes',
+                        urgent: false 
+                    },
+                    { 
+                        id: 5, 
                         name: 'E-commerce', 
                         day: 0, 
                         slot: 'journee', 
@@ -895,7 +1056,7 @@
                         urgent: true 
                     },
                     { 
-                        id: 4, 
+                        id: 6, 
                         name: 'Duolingo', 
                         day: 0, 
                         slot: 'soir', 
@@ -904,6 +1065,18 @@
                         time: '19:00', 
                         duration: 20,
                         durationUnit: 'minutes',
+                        urgent: false 
+                    },
+                    { 
+                        id: 7, 
+                        name: 'Code back-end', 
+                        day: 1, 
+                        slot: 'journee', 
+                        status: 'inprogress', 
+                        categoryId: 2, 
+                        time: '14:00', 
+                        duration: 3,
+                        durationUnit: 'hours',
                         urgent: false 
                     }
                 ];
@@ -938,7 +1111,7 @@
                     <span style="width: 10px; height: 10px; background: ${category.color}; border-radius: 50%; display: inline-block; margin-right: 6px;"></span>
                     ${category.name}
                 `;
-                btn.onclick = () => filterTasks(category.id);
+                btn.onclick = () => showCategorySynthesis(category.id);
                 container.appendChild(btn);
             });
             
@@ -956,6 +1129,122 @@
                 option.textContent = category.name;
                 select.appendChild(option);
             });
+        }
+
+        // Afficher la synthèse d'une catégorie
+        function showCategorySynthesis(categoryId) {
+            if (categoryId === 'Tous') {
+                closeSynthesisView();
+                filterTasks('Tous');
+                return;
+            }
+
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+
+            currentSynthesisCategory = categoryId;
+            currentFilter = categoryId;
+            
+            // Mettre à jour l'interface
+            renderCategories();
+            renderCalendar();
+            
+            // Afficher la vue synthèse
+            document.getElementById('synthesisView').classList.add('active');
+            document.getElementById('synthesisCategoryName').textContent = `Synthèse : ${category.name}`;
+            document.getElementById('synthesisCategoryColor').style.backgroundColor = category.color;
+            
+            // Remplir la synthèse
+            renderSynthesis(categoryId);
+        }
+
+        function closeSynthesisView() {
+            document.getElementById('synthesisView').classList.remove('active');
+            currentSynthesisCategory = null;
+            currentFilter = 'Tous';
+            renderCategories();
+            renderCalendar();
+        }
+
+        function renderSynthesis(categoryId) {
+            const tbody = document.getElementById('synthesisBody');
+            const slots = ['matin', 'journee', 'soir'];
+            const weekDates = getWeekDates(currentWeekStart);
+            
+            tbody.innerHTML = '';
+            
+            slots.forEach(slot => {
+                const row = document.createElement('tr');
+                
+                // Colonne créneau
+                const slotCell = document.createElement('td');
+                slotCell.className = 'synthesis-slot';
+                slotCell.textContent = slotLabels[slot];
+                row.appendChild(slotCell);
+                
+                // Colonnes pour chaque jour
+                for (let day = 0; day < 7; day++) {
+                    const cell = document.createElement('td');
+                    
+                    // Récupérer les tâches pour ce jour, créneau et catégorie
+                    const dayTasks = tasks
+                        .filter(task => 
+                            task.day === day && 
+                            task.slot === slot && 
+                            task.categoryId === categoryId
+                        )
+                        .sort((a, b) => a.time.localeCompare(b.time));
+                    
+                    // Ajouter chaque tâche
+                    dayTasks.forEach(task => {
+                        const taskElement = document.createElement('div');
+                        taskElement.className = 'synthesis-task-item';
+                        taskElement.style.borderColor = getCategoryById(categoryId).color;
+                        taskElement.style.background = `${getCategoryById(categoryId).color}15`;
+                        
+                        const statusIcons = {
+                            pending: '○',
+                            inprogress: '◐',
+                            done: '●'
+                        };
+                        
+                        taskElement.innerHTML = `
+                            <div class="synthesis-task-header">
+                                <div class="synthesis-task-name">${task.name}</div>
+                                <div class="synthesis-task-time">${task.time}</div>
+                            </div>
+                            <div class="synthesis-task-duration">
+                                ⏱️ ${formatDuration(task.duration, task.durationUnit || 'minutes')}
+                                <span style="margin-left: 8px; font-size: 10px; background: ${getStatusColor(task.status)}; color: white; padding: 2px 4px; border-radius: 4px;">
+                                    ${statusIcons[task.status]} ${getStatusText(task.status)}
+                                </span>
+                            </div>
+                        `;
+                        
+                        cell.appendChild(taskElement);
+                    });
+                    
+                    row.appendChild(cell);
+                }
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'done': return '#10B981';
+                case 'inprogress': return '#F59E0B';
+                default: return '#6B7280';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'done': return 'Terminé';
+                case 'inprogress': return 'En cours';
+                default: return 'À faire';
+            }
         }
 
         function openCategoriesModal() {
@@ -1044,6 +1333,10 @@
                 saveCategories();
                 renderCategories();
                 renderCategoriesList();
+                // Si cette catégorie est affichée en synthèse, mettre à jour
+                if (currentSynthesisCategory === categoryId) {
+                    document.getElementById('synthesisCategoryName').textContent = `Synthèse : ${category.name}`;
+                }
             }
         }
 
@@ -1055,6 +1348,11 @@
                 renderCategories();
                 renderCategoriesList();
                 renderCalendar();
+                // Si cette catégorie est affichée en synthèse, mettre à jour
+                if (currentSynthesisCategory === categoryId) {
+                    renderSynthesis(categoryId);
+                    document.getElementById('synthesisCategoryColor').style.backgroundColor = newColor;
+                }
             }
         }
 
@@ -1088,7 +1386,7 @@
             const tasksUsingCategory = tasks.filter(t => t.categoryId === categoryId);
             
             if (tasksUsingCategory.length > 0) {
-                if (!confirm(`Cette catégorie est utilisée par ${tasksUsingCategory.length} tâche(s). Voulez-vous vraiment la supprimer ? Les tâches seront affectées à la catégorie par défaut.`)) {
+                if (!confirm(`Cette catégorie est utilisée par ${tasksUsingCategory.length} tâche(s). Voulez-vous vraiment la supprimer ? Les tâches seront affectées à la première catégorie disponible.`)) {
                     return;
                 }
                 
@@ -1109,6 +1407,11 @@
             renderCategories();
             renderCategoriesList();
             renderCalendar();
+            
+            // Si la catégorie supprimée était affichée en synthèse, fermer la vue
+            if (currentSynthesisCategory === categoryId) {
+                closeSynthesisView();
+            }
         }
 
         // Fonctions utilitaires pour les dates
@@ -1137,6 +1440,9 @@
 
         function filterTasks(categoryFilter) {
             currentFilter = categoryFilter;
+            if (currentSynthesisCategory && categoryFilter !== currentSynthesisCategory) {
+                closeSynthesisView();
+            }
             renderCategories();
             renderCalendar();
         }
@@ -1148,6 +1454,10 @@
                 currentWeekStart.setDate(currentWeekStart.getDate() + (direction * 7));
             }
             renderCalendar();
+            // Si une synthèse est affichée, la mettre à jour
+            if (currentSynthesisCategory) {
+                renderSynthesis(currentSynthesisCategory);
+            }
         }
 
         function getFilteredTasks() {
@@ -1253,6 +1563,10 @@
                 task.status = statuses[(currentIndex + 1) % statuses.length];
                 saveTasks();
                 renderCalendar();
+                // Si une synthèse est affichée, la mettre à jour
+                if (currentSynthesisCategory && task.categoryId === currentSynthesisCategory) {
+                    renderSynthesis(currentSynthesisCategory);
+                }
             }
         }
 
@@ -1275,9 +1589,14 @@
             if (taskToDelete !== null) {
                 const taskIndex = tasks.findIndex(t => t.id === taskToDelete);
                 if (taskIndex !== -1) {
+                    const deletedTask = tasks[taskIndex];
                     tasks.splice(taskIndex, 1);
                     saveTasks();
                     renderCalendar();
+                    // Si une synthèse est affichée et la tâche appartient à cette catégorie, mettre à jour
+                    if (currentSynthesisCategory && deletedTask.categoryId === currentSynthesisCategory) {
+                        renderSynthesis(currentSynthesisCategory);
+                    }
                 }
                 closeConfirmModal();
             }
@@ -1340,6 +1659,10 @@
 
             saveTasks();
             renderCalendar();
+            // Si une synthèse est affichée et la tâche appartient à cette catégorie, mettre à jour
+            if (currentSynthesisCategory && taskData.categoryId === currentSynthesisCategory) {
+                renderSynthesis(currentSynthesisCategory);
+            }
             closeModal();
         }
 
