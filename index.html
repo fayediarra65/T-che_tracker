@@ -3,84 +3,705 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plan Hebdomadaire - Notion Embed</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide-react"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Mon Tracker Avancé</title>
     <style>
-        body { 
-            background: #FFF8F3; 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .notion-compatible {
-            max-width: 1200px;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #FFF8F3;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
         }
-        .export-btn {
+
+        .header {
+            background: linear-gradient(135deg, #E8C4A0 0%, #D9B38C 100%);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #6B4532;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #8B5A45;
+            font-weight: 500;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(139, 90, 69, 0.1);
+            padding: 24px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            color: #6B4532;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #C9A58C;
+            background: white;
+            color: #8B5A45;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, #C9A58C 0%, #B8967E 100%);
+            color: white;
+            border-color: #C9A58C;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #C9A58C 0%, #B8967E 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .calendar {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(139, 90, 69, 0.1);
+            overflow: hidden;
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .calendar-header {
+            background: linear-gradient(135deg, #E8C4A0 0%, #D9B38C 100%);
+            color: #6B4532;
+            font-weight: bold;
+        }
+
+        .calendar-header th {
+            padding: 16px;
+            border: 1px solid #C9A58C;
+            text-align: center;
+        }
+
+        .slot-label {
+            background: #FFF8F3;
+            color: #8B5A45;
+            font-weight: 600;
+            padding: 16px;
+            border: 1px solid #C9A58C;
+            vertical-align: top;
+        }
+
+        .calendar-cell {
+            padding: 12px;
+            border: 1px solid #C9A58C;
+            min-height: 150px;
+            vertical-align: top;
+            background: #FAFAFA;
+        }
+
+        .calendar-cell:hover {
+            background: #F5F5F5;
+        }
+
+        .task-card {
+            background: white;
+            border: 2px solid #C9A58C;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: move;
+            transition: all 0.2s;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .task-card.religion {
+            background: white;
+            border-color: #C9A58C;
+        }
+
+        .task-card.travail {
+            background: white;
+            border-color: #C9A58C;
+        }
+
+        .task-card.habitude {
+            background: white;
+            border-color: #C9A58C;
+        }
+
+        .task-card.projet {
+            background: white;
+            border-color: #C9A58C;
+        }
+
+        .task-card.status-done {
+            background: #D1FAE5 !important;
+            border-color: #10B981 !important;
+        }
+
+        .task-card.status-inprogress {
+            background: #FEF3C7 !important;
+            border-color: #F59E0B !important;
+        }
+
+        .task-card.status-pending {
+            background: white !important;
+            border-color: #C9A58C !important;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .task-name {
+            flex: 1;
+            font-weight: 600;
+            color: #6B4532;
+            font-size: 14px;
+        }
+
+        .task-time {
+            color: #8B5A45;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .icon-btn {
+            padding: 6px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .status-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .status-pending { background: #F3F4F6; }
+        .status-pending:hover { background: #E5E7EB; }
+        .status-inprogress { background: #FEF3C7; }
+        .status-inprogress:hover { background: #FDE68A; }
+        .status-done { background: #D1FAE5; }
+        .status-done:hover { background: #A7F3D0; }
+
+        .legend {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(139, 90, 69, 0.1);
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .legend h3 {
+            color: #6B4532;
+            border-left: 5px solid #C9A58C;
+            padding-left: 12px;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        .legend-items {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #8B5A45;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .legend-text {
+            color: #8B5A45;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .modal {
+            display: none;
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            border-top: 4px solid #C9A58C;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .modal-title {
+            color: #6B4532;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            color: #8B5A45;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #C9A58C;
+            border-radius: 8px;
+            background: #FFF8F3;
+            font-size: 14px;
+            color: #6B4532;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #B8967E;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .calendar {
+                overflow-x: auto;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        // Copiez tout votre code React ici
-        // ... (votre code complet)
-        
-        // Rendu
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<PlanHebdoCalendar />);
-    </script>
-    
-    <button class="export-btn" onclick="exportToNotion()" 
-            style="background: #C9A58C; color: white; padding: 12px 24px; border-radius: 12px; font-weight: bold; box-shadow: 0 4px 12px rgba(201, 165, 140, 0.3);">
-        📋 Copier pour Notion
-    </button>
-    
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Mon Tracker Avancé</h1>
+            <p>Habitudes • Tâches • Objectifs • Suivi complet</p>
+        </div>
+
+        <div class="controls">
+            <div class="filters">
+                <span class="filter-label">🔍 Filtrer:</span>
+                <button class="btn active" onclick="filterTasks('Tous')">Tous</button>
+                <button class="btn" onclick="filterTasks('Religion')">Religion</button>
+                <button class="btn" onclick="filterTasks('Travail')">Travail</button>
+                <button class="btn" onclick="filterTasks('Habitude')">Habitude</button>
+                <button class="btn" onclick="filterTasks('Projet')">Projet</button>
+            </div>
+            <button class="btn btn-add" onclick="openAddModal()">➕ Ajouter</button>
+        </div>
+
+        <div class="calendar">
+            <table class="calendar-table">
+                <thead class="calendar-header">
+                    <tr>
+                        <th style="width: 120px;">Créneaux</th>
+                        <th>Lundi</th>
+                        <th>Mardi</th>
+                        <th>Mercredi</th>
+                        <th>Jeudi</th>
+                        <th>Vendredi</th>
+                        <th>Samedi</th>
+                        <th>Dimanche</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="legend">
+            <h3>💡 Légende et Utilisation</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #F3F4F6; display: inline-block;"></span>
+                    À faire
+                </div>
+                <div class="legend-item">
+                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #FEF3C7; display: inline-block;"></span>
+                    En cours
+                </div>
+                <div class="legend-item">
+                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #D1FAE5; display: inline-block;"></span>
+                    Terminé
+                </div>
+            </div>
+           
+        </div>
+    </div>
+
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="modalTitle">➕ Ajouter une tâche</h3>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label class="form-label">Nom de la tâche *</label>
+                    <input type="text" id="taskName" class="form-input" placeholder="Ex: Mémorisation Coran" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Jour</label>
+                        <select id="taskDay" class="form-select">
+                            <option value="0">Lundi</option>
+                            <option value="1">Mardi</option>
+                            <option value="2">Mercredi</option>
+                            <option value="3">Jeudi</option>
+                            <option value="4">Vendredi</option>
+                            <option value="5">Samedi</option>
+                            <option value="6">Dimanche</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Créneau</label>
+                        <select id="taskSlot" class="form-select">
+                            <option value="matin">🌅 Matin</option>
+                            <option value="journee">☀️ Journée</option>
+                            <option value="soir">🌙 Soir</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Catégorie</label>
+                        <select id="taskCategory" class="form-select">
+                            <option value="Religion">Religion</option>
+                            <option value="Travail">Travail</option>
+                            <option value="Habitude">Habitude</option>
+                            <option value="Projet">Projet</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Heure</label>
+                        <input type="time" id="taskTime" class="form-input" value="08:00">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-add">✓ Ajouter</button>
+                    <button type="button" class="btn" onclick="closeModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        function exportToNotion() {
-            // Format pour copier-coller dans Notion
-            const tasksByDay = {};
-            // Organiser les tâches par jour
-            // ... logique d'organisation
-            
-            let markdown = "# 📅 Plan Hebdomadaire\n\n";
-            
-            ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'].forEach((day, index) => {
-                markdown += `## ${day}\n`;
-                const dayTasks = window.tasks?.filter(t => t.day === index) || [];
-                
-                if (dayTasks.length === 0) {
-                    markdown += "- Aucune tâche\n";
-                } else {
-                    dayTasks.forEach(task => {
-                        const statusIcon = {
-                            'pending': '⏳',
-                            'inprogress': '🔄',
-                            'done': '✅'
-                        }[task.status];
-                        
-                        markdown += `- ${statusIcon} **${task.name}** (${task.time}) - ${task.category}\n`;
-                    });
-                }
-                markdown += "\n";
-            });
-            
-            // Copier dans le presse-papier
-            navigator.clipboard.writeText(markdown)
-                .then(() => alert('✅ Plan copié ! Collez-le dans Notion'))
-                .catch(err => console.error('Erreur:', err));
+        let tasks = [];
+        let currentFilter = 'Tous';
+        let editingTaskId = null;
+
+        const slotLabels = {
+            matin: '🌅 Matin',
+            journee: '☀️ Journée',
+            soir: '🌙 Soir'
+        };
+
+        // Initialisation
+        function init() {
+            loadTasks();
+            renderCalendar();
+            document.getElementById('taskForm').addEventListener('submit', handleSubmit);
         }
-        
-        // Exposer les tâches globalement pour l'export
-        window.tasks = []; // Seront remplis par React
+
+        // Chargement des données
+        function loadTasks() {
+            const saved = localStorage.getItem('hebdo-tasks');
+            if (saved) {
+                tasks = JSON.parse(saved);
+            } else {
+                tasks = [
+                    { id: 1, name: 'Mémorisation Coran', day: 0, slot: 'matin', status: 'done', category: 'Religion', time: '07:00' },
+                    { id: 2, name: 'Révision sourates', day: 0, slot: 'matin', status: 'pending', category: 'Religion', time: '08:00' },
+                    { id: 3, name: 'E-commerce', day: 0, slot: 'journee', status: 'inprogress', category: 'Travail', time: '10:00' },
+                    { id: 4, name: 'Duolingo', day: 0, slot: 'soir', status: 'done', category: 'Habitude', time: '19:00' },
+                    { id: 5, name: 'Tafsir', day: 1, slot: 'matin', status: 'pending', category: 'Religion', time: '07:30' },
+                    { id: 6, name: 'Code back-end', day: 1, slot: 'journee', status: 'inprogress', category: 'Travail', time: '14:00' },
+                    { id: 7, name: 'Douche', day: 1, slot: 'soir', status: 'done', category: 'Habitude', time: '20:00' },
+                    { id: 8, name: 'Al-Akhdariyya', day: 2, slot: 'matin', status: 'pending', category: 'Religion', time: '06:30' },
+                    { id: 9, name: 'Réunion équipe', day: 2, slot: 'journee', status: 'pending', category: 'Travail', time: '15:00' },
+                    { id: 10, name: 'Ranger chambre', day: 2, slot: 'soir', status: 'pending', category: 'Habitude', time: '18:30' }
+                ];
+                saveTasks();
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem('hebdo-tasks', JSON.stringify(tasks));
+        }
+
+        function filterTasks(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filters .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            renderCalendar();
+        }
+
+        function getFilteredTasks() {
+            if (currentFilter === 'Tous') return tasks;
+            return tasks.filter(task => task.category === currentFilter);
+        }
+
+        function renderCalendar() {
+            const tbody = document.getElementById('calendarBody');
+            const slots = ['matin', 'journee', 'soir'];
+            tbody.innerHTML = '';
+
+            slots.forEach(slot => {
+                const row = document.createElement('tr');
+                
+                const slotCell = document.createElement('td');
+                slotCell.className = 'slot-label';
+                slotCell.textContent = slotLabels[slot];
+                row.appendChild(slotCell);
+
+                for (let day = 0; day < 7; day++) {
+                    const cell = document.createElement('td');
+                    cell.className = 'calendar-cell';
+                    
+                    const dayTasks = getFilteredTasks()
+                        .filter(task => task.day === day && task.slot === slot)
+                        .sort((a, b) => a.time.localeCompare(b.time));
+
+                    dayTasks.forEach(task => {
+                        cell.appendChild(createTaskCard(task));
+                    });
+
+                    row.appendChild(cell);
+                }
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = `task-card ${task.category.toLowerCase()} status-${task.status}`;
+            
+            const statusIcons = {
+                pending: '○',
+                inprogress: '◐',
+                done: '●'
+            };
+
+            card.innerHTML = `
+                <div class="task-header">
+                    <button class="status-btn status-${task.status}" onclick="toggleStatus(${task.id})">
+                        ${statusIcons[task.status]}
+                    </button>
+                    <div class="task-name">${task.name}</div>
+                    <div class="task-actions">
+                        <button class="icon-btn" onclick="editTask(${task.id})" title="Modifier">✏️</button>
+                        <button class="icon-btn" onclick="deleteTask(${task.id})" title="Supprimer">🗑️</button>
+                    </div>
+                </div>
+                <div class="task-time">🕐 ${task.time}</div>
+            `;
+
+            return card;
+        }
+
+        function toggleStatus(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                const statuses = ['pending', 'inprogress', 'done'];
+                const currentIndex = statuses.indexOf(task.status);
+                task.status = statuses[(currentIndex + 1) % statuses.length];
+                saveTasks();
+                renderCalendar();
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveTasks();
+                renderCalendar();
+            }
+        }
+
+        function openAddModal() {
+            editingTaskId = null;
+            document.getElementById('modalTitle').textContent = '➕ Ajouter une tâche';
+            document.getElementById('taskForm').reset();
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        function editTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                editingTaskId = taskId;
+                document.getElementById('modalTitle').textContent = '✏️ Modifier la tâche';
+                document.getElementById('taskName').value = task.name;
+                document.getElementById('taskDay').value = task.day;
+                document.getElementById('taskSlot').value = task.slot;
+                document.getElementById('taskCategory').value = task.category;
+                document.getElementById('taskTime').value = task.time;
+                document.getElementById('taskModal').classList.add('active');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+            editingTaskId = null;
+        }
+
+        function handleSubmit(e) {
+            e.preventDefault();
+            
+            const taskData = {
+                name: document.getElementById('taskName').value,
+                day: parseInt(document.getElementById('taskDay').value),
+                slot: document.getElementById('taskSlot').value,
+                category: document.getElementById('taskCategory').value,
+                time: document.getElementById('taskTime').value,
+                status: 'pending'
+            };
+
+            if (editingTaskId) {
+                const task = tasks.find(t => t.id === editingTaskId);
+                Object.assign(task, taskData);
+            } else {
+                taskData.id = Date.now();
+                tasks.push(taskData);
+            }
+
+            saveTasks();
+            renderCalendar();
+            closeModal();
+        }
+
+        // Fermer le modal en cliquant en dehors
+        document.getElementById('taskModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialiser au chargement
+        init();
     </script>
 </body>
 </html>
