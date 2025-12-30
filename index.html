@@ -302,6 +302,82 @@
         .status-done { background: #D1FAE5; }
         .status-done:hover { background: #A7F3D0; }
 
+        /* Modal de confirmation */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 16px;
+        }
+
+        .confirm-modal.active {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            border-top: 4px solid #EF4444;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .confirm-title {
+            color: #6B4532;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .confirm-message {
+            color: #8B5A45;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .confirm-actions button {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-confirm {
+            background: #EF4444;
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #DC2626;
+        }
+
+        .btn-cancel {
+            background: #C9A58C;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #B8967E;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -449,6 +525,19 @@
         </div>
     </div>
 
+    <!-- Modal de confirmation pour suppression -->
+    <div id="confirmModal" class="confirm-modal">
+        <div class="confirm-content">
+            <h3 class="confirm-title">⚠️ Confirmation</h3>
+            <p class="confirm-message" id="confirmMessage">Êtes-vous sûr de vouloir supprimer cette tâche ?</p>
+            <div class="confirm-actions">
+                <button class="btn-confirm" id="confirmDelete">Oui, supprimer</button>
+                <button class="btn-cancel" onclick="closeConfirmModal()">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal d'ajout/modification -->
     <div id="taskModal" class="modal">
         <div class="modal-content">
             <h3 class="modal-title" id="modalTitle">➕ Ajouter une tâche</h3>
@@ -525,6 +614,7 @@
         let currentFilter = 'Tous';
         let editingTaskId = null;
         let currentWeekStart = null;
+        let taskToDelete = null; // Stocke l'ID de la tâche à supprimer
 
         const slotLabels = {
             matin: '🌅 Matin',
@@ -567,6 +657,9 @@
             loadTasks();
             renderCalendar();
             document.getElementById('taskForm').addEventListener('submit', handleSubmit);
+            
+            // Configurer le bouton de confirmation
+            document.getElementById('confirmDelete').addEventListener('click', performDelete);
         }
 
         // Chargement des données
@@ -801,7 +894,7 @@
                     <div class="task-name">${task.name}${urgentBadge}</div>
                     <div class="task-actions">
                         <button class="icon-btn" onclick="editTask(${task.id})" title="Modifier">✏️</button>
-                        <button class="icon-btn" onclick="deleteTask(${task.id})" title="Supprimer">🗑️</button>
+                        <button class="icon-btn" onclick="showDeleteConfirm(${task.id})" title="Supprimer">🗑️</button>
                     </div>
                 </div>
                 <div class="task-time">🕐 ${task.time}</div>
@@ -822,16 +915,32 @@
             }
         }
 
-        function deleteTask(taskId) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+        function showDeleteConfirm(taskId) {
+            taskToDelete = taskId;
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                document.getElementById('confirmMessage').textContent = 
+                    `Êtes-vous sûr de vouloir supprimer la tâche "${task.name}" ?`;
+                document.getElementById('confirmModal').classList.add('active');
+            }
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            taskToDelete = null;
+        }
+
+        function performDelete() {
+            if (taskToDelete !== null) {
                 // Trouver l'index de la tâche à supprimer
-                const taskIndex = tasks.findIndex(t => t.id === taskId);
+                const taskIndex = tasks.findIndex(t => t.id === taskToDelete);
                 if (taskIndex !== -1) {
                     // Supprimer la tâche du tableau
                     tasks.splice(taskIndex, 1);
                     saveTasks();
                     renderCalendar();
                 }
+                closeConfirmModal();
             }
         }
 
@@ -894,7 +1003,13 @@
             closeModal();
         }
 
-        // Fermer le modal en cliquant en dehors
+        // Fermer les modals en cliquant en dehors
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConfirmModal();
+            }
+        });
+
         document.getElementById('taskModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
