@@ -276,6 +276,7 @@
             cursor: pointer;
             border-radius: 4px;
             transition: all 0.2s;
+            font-size: 14px;
         }
 
         .icon-btn:hover {
@@ -300,44 +301,6 @@
         .status-inprogress:hover { background: #FDE68A; }
         .status-done { background: #D1FAE5; }
         .status-done:hover { background: #A7F3D0; }
-
-        .legend {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(139, 90, 69, 0.1);
-            padding: 24px;
-            margin-top: 24px;
-        }
-
-        .legend h3 {
-            color: #6B4532;
-            border-left: 5px solid #C9A58C;
-            padding-left: 12px;
-            margin-bottom: 16px;
-            font-size: 18px;
-        }
-
-        .legend-items {
-            display: flex;
-            gap: 24px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #8B5A45;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .legend-text {
-            color: #8B5A45;
-            font-size: 14px;
-            line-height: 1.6;
-        }
 
         .modal {
             display: none;
@@ -483,30 +446,6 @@
                 <tbody id="calendarBody">
                 </tbody>
             </table>
-        </div>
-
-        <div class="legend">
-            <h3>💡 Légende et Utilisation</h3>
-            <div class="legend-items">
-                <div class="legend-item">
-                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #F3F4F6; display: inline-block;"></span>
-                    À faire
-                </div>
-                <div class="legend-item">
-                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #FEF3C7; display: inline-block;"></span>
-                    En cours
-                </div>
-                <div class="legend-item">
-                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #D1FAE5; display: inline-block;"></span>
-                    Terminé
-                </div>
-            </div>
-            <p class="legend-text">
-                ✨ <strong>Cliquez sur l'icône</strong> pour changer le statut • 
-                ✏️ <strong>Modifiez ou supprimez</strong> avec les icônes •
-                🕐 <strong>Durée</strong> affichée pour chaque tâche •
-                💾 <strong>Toutes vos données sont sauvegardées automatiquement</strong>
-            </p>
         </div>
     </div>
 
@@ -885,9 +824,14 @@
 
         function deleteTask(taskId) {
             if (confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
-                tasks = tasks.filter(t => t.id !== taskId);
-                saveTasks();
-                renderCalendar();
+                // Trouver l'index de la tâche à supprimer
+                const taskIndex = tasks.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    // Supprimer la tâche du tableau
+                    tasks.splice(taskIndex, 1);
+                    saveTasks();
+                    renderCalendar();
+                }
             }
         }
 
